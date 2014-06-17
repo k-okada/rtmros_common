@@ -14,6 +14,7 @@
   <arg name="USE_COLLISIONCHECK" default="true" />
   <arg name="USE_IMPEDANCECONTROLLER" default="false" />
   <arg name="USE_GRASPCONTROLLER" default="false" />
+  <arg name="USE_SERVOCONTROLLER" default="false" />
   <arg name="USE_TORQUECONTROLLER" default="false" />
   <arg name="USE_SOFTERRORLIMIT" default="true" />
   <arg name="USE_TORQUEFILTER" default="false" />
@@ -164,6 +165,16 @@
           output="screen" args ="$(arg openrtm_args)" />
     <rtconnect from="GraspControllerServiceROSBridge.rtc:GraspControllerService" to="gc.rtc:GraspControllerService"  subscription_type="new"/>
     <rtactivate component="GraspControllerServiceROSBridge.rtc" />
+  </group>
+
+  <!-- USE_SERVOCONTROLLER
+       ServoController
+  -->
+  <group if="$(arg USE_SERVOCONTROLLER)" >
+    <node pkg="hrpsys_ros_bridge" name="ServoControllerServiceROSBridge" type="ServoControllerServiceROSBridgeComp"
+          output="screen" args ="$(arg openrtm_args)" />
+    <rtconnect from="ServoControllerServiceROSBridge.rtc:ServoControllerService" to="gc.rtc:ServoControllerService"  subscription_type="new"/>
+    <rtactivate component="ServoControllerServiceROSBridge.rtc" />
   </group>
 
   <!-- USE_TORQUECONTROLLER
