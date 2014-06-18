@@ -25,7 +25,8 @@
              (send-all (send robot :force-sensors) :name))
      (ros::subscribe "/zmp" geometry_msgs::PointStamped
                      #'send self :rtmros-zmp-callback :groupname groupname)
-
+     (ros::subscribe "/imu" sensor_msgs::Imu
+                     #'send self :rtmros-imu-callback :groupname groupname)
      ))
   (:rtmros-motor-states-callback
    (msg)
@@ -35,6 +36,9 @@
    (msg)
    (let ((p (send msg :point)))
      (send self :set-robot-state1 :zmp (float-vector (send p :x) (send p :y) (send p :z)))))
+  (:rtmros-imu-callback
+   (msg)
+   (send self :set-robot-state1 :imu msg))
   (:temperature-vector () (cdr (assoc :temperature robot-state)))
   (:motor-extra-data
    ()
@@ -54,17 +58,20 @@
                          (send (send wrc :torque) :x)
                          (send (send wrc :torque) :y)
                          (send (send wrc :torque) :z)))))
+  (:tmp-force-moment-vector-for-limb
+   (f/m fsensor-name &optional (off nil))
+   (let ((key-name (if off
+                       (read-from-string (format nil ":~A-~A" off (string-downcase fsensor-name)))
+                     fsensor-name)))
+     (subseq (cdr (assoc key-name robot-state))
+             (if (eq f/m :force) 0 3)
+             (if (eq f/m :force) 3 6))))
   (:tmp-force-moment-vector
    (f/m &optional (limb) (off nil))
    (if limb
-       (let ((key-name (if off
-                           (read-from-string (format nil ":~A-~A" off (string-downcase (send (send robot :force-sensor limb) :name))))
-                         (send (send robot :force-sensor limb) :name))))
-         (subseq (cdr (assoc key-name robot-state))
-                 (if (eq f/m :force) 0 3)
-                 (if (eq f/m :force) 3 6)))
+       (send self :tmp-force-moment-vector-for-limb f/m (send (car (send robot limb :force-sensors)) :name) off)
      (mapcar #'(lambda (x)
-                 (send self :tmp-force-moment-vector f/m x off))
+                 (send self :tmp-force-moment-vector-for-limb f/m x off))
              (send-all (send robot :force-sensors) :name))))
   (:force-vector
    (&optional (limb))
@@ -81,14 +88,14 @@
   (:absolute-force-vector
    (&optional (limb))
    (if limb
-       (send (send robot :force-sensor limb) :rotate-vector (send self :off-force-vector limb))
+       (send (car (send robot limb :force-sensors)) :rotate-vector (send self :off-force-vector limb))
      (mapcar #'(lambda (fs force)
                  (send fs :rotate-vector force))
              (send robot :force-sensors) (send self :off-force-vector))))
   (:absolute-moment-vector
    (&optional (limb))
    (if limb
-       (send (send robot :force-sensor limb) :rotate-vector (send self :off-moment-vector limb))
+       (send (car (send robot limb :force-sensors)) :rotate-vector (send self :off-moment-vector limb))
      (mapcar #'(lambda (fs moment)
                  (send fs :rotate-vector moment))
              (send robot :force-sensors) (send self :off-moment-vector))))
@@ -105,7 +112,7 @@
      (dolist (idl (send self :get-ROSBridge-idl-fnames ros-pkg-name))
        (let ((rtc-name (pathname-name idl)))
          (dolist (srv-name (mapcar #'pathname-name (remove-if-not #'(lambda (x) (and (substringp rtc-name x) (not (= (char x 0) (char "." 0))))) srv-fnames)))
-           (let ((method-def (send self :get-ROSBridge-method-def-macro rtc-name srv-name)))
+           (let ((method-def (send self :get-ROSBridge-method-def-macro rtc-name srv-name ros-pkg-name)))
              (when method-def
                (if debug-view (pprint (macroexpand method-def)))
                (eval method-def)
@@ -118,9 +125,9 @@
   (:get-ROSBridge-idl-fnames (&optional (ros-pkg-name "hrpsys_ros_bridge")) (send self :get-ROSBridge-fnames-from-type "idl" ros-pkg-name))
   (:get-ROSBridge-srv-fnames (&optional (ros-pkg-name "hrpsys_ros_bridge")) (send self :get-ROSBridge-fnames-from-type "srv" ros-pkg-name))
   (:get-ROSBridge-method-def-macro
-   (rtc-name srv-name)
+   (rtc-name srv-name &optional (ros-pkg-name "hrpsys_ros_bridge"))
    (let* ((meth-name (string-left-trim "_" (string-left-trim rtc-name (string-left-trim "_" (string-left-trim "OpenHRP" srv-name)))))
-          (srv-request (read-from-string (format nil "hrpsys_ros_bridge::~ARequest" srv-name)))
+          (srv-request (read-from-string (format nil "~A::~ARequest" ros-pkg-name srv-name)))
           (init-method (find-if #'(lambda (x) (eq (car x) :init)) (send (eval srv-request) :methods)))
           ;;(new-method-name (read-from-string (format nil ":~A" (string-left-trim "_" (string-left-trim rtc-name (string-left-trim "_" (string-left-trim "OpenHRP" srv-name))))))))
           (new-method-name (read-from-string (format nil ":~A" (string-left-trim "_" (string-left-trim "OpenHRP" srv-name))))))
@@ -170,12 +177,19 @@
   (:update-robot-state
    ()
    (send-super :update-robot-state)
-   (let ((imucoords (send *tfl* :lookup-transform "/imu_floor" (format nil "/~a" (send (car (send robot :links)) :name)) (ros::time))))
-     (if imucoords (send robot :newcoords imucoords))
-     ))
+   (let ((imucoords (make-coords :rot (ros::tf-quaternion->rot (send (cdr (assoc :imu robot-state)) :orientation)))))
+     (if imucoords (send robot :move-coords imucoords (car (send robot :imu-sensors))))))
   (:imucoords
    ()
    (send robot :copy-worldcoords))
+  (:accel-vector
+   ()
+   (let ((acc (send (cdr (assoc :imu robot-state)) :linear_acceleration)))
+     (float-vector (send acc :x) (send acc :y) (send acc :z))))
+  (:gyro-vector
+   ()
+   (let ((gyro (send (cdr (assoc :imu robot-state)) :angular_velocity)))
+     (float-vector (send gyro :x) (send gyro :y) (send gyro :z))))
   (:state
     (&rest args)
     (case (car args)
@@ -343,8 +357,10 @@
     ((stringp limb)
      (apply method-func
             limb nil nil args))
-    ((send robot :force-sensor limb)
-     (let ((fs (send robot :force-sensor limb))
+    ((eq limb :legs) (mapcar #'(lambda (l) (send* self method-name l args)) '(:rleg :lleg)))
+    ((eq limb :arms) (mapcar #'(lambda (l) (send* self method-name l args)) '(:rarm :larm)))
+    ((car (send robot limb :force-sensors))
+     (let ((fs (car (send robot limb :force-sensors)))
            (base-name (send (send (send (send robot limb :root-link) :parent) :joint) :name)))
        (apply method-func
               (string-downcase (send fs :name))
@@ -359,8 +375,6 @@
               (send (send (send (send robot rlimb :root-link) :parent) :joint) :name)
               (send (send (send (send robot rlimb :end-coords) :parent) :joint) :name)
               args)))
-    ((eq limb :legs) (mapcar #'(lambda (l) (send* self method-name l args)) '(:rleg :lleg)))
-    ((eq limb :arms) (mapcar #'(lambda (l) (send* self method-name l args)) '(:rarm :larm)))
     (t ) ;; virtual force sensor is not supported in this file
     ))
   )
@@ -424,7 +438,7 @@
              (let* ((abs-v (send self (read-from-string (format nil ":absolute-~A-vector" (string-downcase f/m))) alimb))
                     (param (send self :get-forcemoment-offset-param alimb))
                     (off (v+ (send param (if (eq f/m :force) :force_offset :moment_offset))
-                             (send (send robot :force-sensor alimb) :inverse-rotate-vector abs-v))))
+                             (send (car (send robot alimb :force-sensors)) :inverse-rotate-vector abs-v))))
                (list off abs-v))))
      (mapcar #'(lambda (alimb)
                  (let* ((ret (mapcar #'(lambda (x) (calc-off alimb)) (make-list itr)))
@@ -453,17 +467,9 @@
 (defmethod rtm-ros-robot-interface
   (:start-auto-balancer
    (&key (limbs '(:rleg :lleg)))
-   (send self :autobalancerservice_startABC
-         :alp (mapcar #'(lambda (limb)
-                          (let ((target2foot (send (send (send robot limb :end-coords) :parent) :transformation (send robot limb :end-coords))))
-                            (instance hrpsys_ros_bridge::openhrp_autobalancerservice_autobalancerlimbparam
-                                      :init :name (format nil "~A" limb)
-                                      ;;:target_name (send (send (send robot limb :end-coords) :parent) :joint :name)
-                                      ;;:base_name (if (send (send (send robot limb :root-link) :parent) :joint) (send (send (send robot limb :root-link) :parent) :joint :name) "WAIST")
-                                      :target2foot_offset_pos (scale 1e-3 (send target2foot :worldpos))
-                                      :target2foot_offset_rot (matrix2quaternion (send target2foot :worldrot)))))
-                      limbs)))
-  (:stop-auto-balancer () (send self :autobalancerservice_stopABC))
+   (send self :autobalancerservice_startAutoBalancer
+         :limbs (mapcar #'(lambda (x) (format nil "~A" x)) limbs)))
+  (:stop-auto-balancer () (send self :autobalancerservice_stopAutoBalancer))
   (:go-pos-no-wait
    (xx yy th)
    (send self :autobalancerservice_goPos :x xx :y yy :th th))
@@ -609,13 +615,17 @@
    )
   )
 
-(defun print-abc-parameter-conf-from-robot
+(defun print-abc-leg-offset-conf-from-robot
   (rb)
-  (format t "abc_end_effectors:")
-  (dolist (l '(:rarm :larm :rleg :lleg))
-    (let ((rl (send (send (send rb l :root-link) :parent) :joint)))
-      (format t " ~A,~A,~A," l (send (send (send rb l :end-coords :parent) :joint) :name) (if rl (send rl :name) "WAIST"))))
-  (format t "~%"))
+  (let ((pav (send rb :angle-vector))
+        (prc (send rb :copy-worldcoords)))
+    (format t "abc_leg_offset: ")
+    (let ((diff (scale (* 0.5 1e-3) (send (send (send rb :rleg :end-coords) :transformation (send rb :lleg :end-coords)) :worldpos))))
+      (format t "~A,~A,~A" (elt diff 0) (elt diff 1) (elt diff 2)))
+    (format t "~%")
+    (send rb :angle-vector pav)
+    (send rb :newcoords prc)
+    ))
 
 (defun print-end-effector-parameter-conf-from-robot
   (rb)

@@ -2,6 +2,32 @@
 Changelog for package hrpsys_tools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.0 (2014-05-14)
+------------------
+
+* bump to 1.2.0for hrpsys 315.2.0
+
+1.0.12 (2014-05-06)
+-------------------
+* add RemoveForceSensorLinkOffset setting ;; I write both AbsoluteForceSensor and RemoveForceSensorLinkOffset for compatibility
+* make fail when pa10 is fail to launch
+* Contributors: Kei Okada, Shunichi Nozawa
+
+1.0.11 (2014-04-16)
+-------------------
+
+1.0.10 (2014-04-15)
+-------------------
+
+1.0.9 (2014-04-14)
+------------------
+
+1.0.8 (2014-04-14)
+------------------
+* use start_omninames.sh for rosdevel build environment, see `#400 <https://github.com/start-jsk/rtmros_common/issues/400>`_
+* add_py_launch_prefix
+* Contributors: Kei Okada, Yohei Kakiuchi, Isaac Isao Saito
+
 1.0.7 (2014-03-20)
 ------------------
 * add respawn to rtcd/hrpsys-simulator, RESPAWN_MODELLOADER, RESPAWN_SIMULATOR, RESPAWN_RTCD, see Issue #380

@@ -10,9 +10,9 @@
   <!-- Set these values false when using HIRO -->
   <arg name="USE_COMMON" default="true" />
   <arg name="USE_ROBOTHARDWARE" default="false" />
-  <arg name="USE_WALKING" default="true" />
+  <arg name="USE_WALKING" default="false" />
   <arg name="USE_COLLISIONCHECK" default="true" />
-  <arg name="USE_IMPEDANCECONTROLLER" default="true" />
+  <arg name="USE_IMPEDANCECONTROLLER" default="false" />
   <arg name="USE_GRASPCONTROLLER" default="false" />
   <arg name="USE_TORQUECONTROLLER" default="false" />
   <arg name="USE_SOFTERRORLIMIT" default="true" />
@@ -85,7 +85,9 @@
     <rtconnect from="$(arg SIMULATOR_NAME).rtc:q" to="HrpsysSeqStateROSBridge0.rtc:rsangle" subscription_type="new"/>
     <rtconnect from="$(arg SIMULATOR_NAME).rtc:tau" to="HrpsysSeqStateROSBridge0.rtc:rstorque" subscription_type="new" unless="$(arg USE_TORQUEFILTER)"/>
     <rtconnect from="StateHolderServiceROSBridge.rtc:StateHolderService" to="sh.rtc:StateHolderService"  subscription_type="new"/>
-    <rtconnect from="sh.rtc:baseTformOut" to="HrpsysSeqStateROSBridge0.rtc:baseTform" subscription_type="new"/>
+    <group unless="$(arg USE_WALKING)">
+      <rtconnect from="sh.rtc:baseTformOut" to="HrpsysSeqStateROSBridge0.rtc:baseTform" subscription_type="new"/>
+    </group>
     <rtconnect from="sh.rtc:qOut" to="HrpsysSeqStateROSBridge0.rtc:mcangle" subscription_type="new"/>
     <rtconnect from="HrpsysSeqStateROSBridge0.rtc:SequencePlayerService" to="seq.rtc:SequencePlayerService" subscription_type="new"/>
     <rtconnect from="HrpsysJointTrajectoryBridge0.rtc:SequencePlayerService" to="seq.rtc:SequencePlayerService" subscription_type="new"/>
@@ -118,7 +120,7 @@
           output="screen" args ="$(arg openrtm_args)" />
     <node pkg="hrpsys_ros_bridge" name="StabilizerServiceROSBridge" type="StabilizerServiceROSBridgeComp"
           output="screen" args ="$(arg openrtm_args)" />
-
+    <rtconnect from="abc.rtc:baseTformOut" to="HrpsysSeqStateROSBridge0.rtc:baseTform" subscription_type="new"/>
     <rtconnect from="kf.rtc:rpy" to="HrpsysSeqStateROSBridge0.rtc:baseRpy" subscription_type="new"/>
     <rtconnect from="st.rtc:zmp" to="HrpsysSeqStateROSBridge0.rtc:rszmp" subscription_type="new"/>
     <rtconnect from="AutoBalancerServiceROSBridge.rtc:AutoBalancerService" to="abc.rtc:AutoBalancerService"  subscription_type="new"/>
@@ -142,18 +144,18 @@
 
   <!-- USE_IMPEDANCECONTROLLER
        ImpedanceController
-       AbsoluteForceSensor
+       RemoveForceSensorLinkOffset
   -->
   <group if="$(arg USE_IMPEDANCECONTROLLER)" >
     <node pkg="hrpsys_ros_bridge" name="ImpedanceControllerServiceROSBridge" type="ImpedanceControllerServiceROSBridgeComp"
           output="screen" args ="$(arg openrtm_args)" />
-    <node pkg="hrpsys_ros_bridge" name="AbsoluteForceSensorServiceROSBridge" type="AbsoluteForceSensorServiceROSBridgeComp"
+    <node pkg="hrpsys_ros_bridge" name="RemoveForceSensorLinkOffsetServiceROSBridge" type="RemoveForceSensorLinkOffsetServiceROSBridgeComp"
           output="$(arg OUTPUT)" args="$(arg openrtm_args)" />
 
     <rtconnect from="ImpedanceControllerServiceROSBridge.rtc:ImpedanceControllerService" to="ic.rtc:ImpedanceControllerService"  subscription_type="new"/>
     <rtactivate component="ImpedanceControllerServiceROSBridge.rtc" />
-    <rtconnect from="AbsoluteForceSensorServiceROSBridge.rtc:AbsoluteForceSensorService" to="afs.rtc:AbsoluteForceSensorService"  subscription_type="new"/>
-    <rtactivate component="AbsoluteForceSensorServiceROSBridge.rtc" />
+    <rtconnect from="RemoveForceSensorLinkOffsetServiceROSBridge.rtc:RemoveForceSensorLinkOffsetService" to="rmfo.rtc:RemoveForceSensorLinkOffsetService"  subscription_type="new"/>
+    <rtactivate component="RemoveForceSensorLinkOffsetServiceROSBridge.rtc" />
   </group>
 
   <!-- USE_GRASPCONTROLLER

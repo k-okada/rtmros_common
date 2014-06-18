@@ -2,6 +2,59 @@
 Changelog for package hrpsys_ros_bridge
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.0 (2014-05-14)
+------------------
+
+* bump to 1.2.0for hrpsys 315.2.0
+
+1.0.12 (2014-05-06)
+-------------------
+* (collision_detector.launch) typo
+* use odom instad of imu_floor
+* do not connect port when afs is not found
+* set WALKING and IMPEDANCE controller as non-default RTC
+* update generate config.yaml
+* add both Robot(Robot)0 and RobotHadware0 in datalogger
+* add scripts for auto generating controller config yaml
+* Use subprocess.Popen rather than check_call in order to call
+  external process asynchronouslly
+* pass argument to get-ROSBridge-method-defmacro method
+* add generating urdf file to compile_robot_model.cmake
+* Merge pull request #433 from k-okada/do_not_compile_idl_twice
+  do not update manifets.xml and copy idl when it is not needed (#429)
+* implement hrpsys_dashboard base on rqt, not on rxtools
+* do not update manifets.xml and copy idl when it is not needed (#429)
+* rename base-pos and base-rpy => root-pos and root-rpy
+* add reading of datalogger properties
+* set REALTIME=ture as default
+* update :start-auto-balancer and :stop-auto-balancer method according to hrpsys-base trunk update at https://code.google.com/p/hrpsys-base/source/detail?r=1039  commit ;; we do not need to change usage of these methods
+* Contributors: Isaac Saito, Kei Okada, Ryohei Ueda, YoheiKakiuchi, Shunichi Nozawa
+
+1.0.11 (2014-04-16)
+-------------------
+* use random staritng  port number for rtm_naming, also try to continue if name server is already running
+* Contributors: Kei Okada
+
+1.0.10 (2014-04-15)
+-------------------
+* remove sed to comment out pr2_controllers
+* Contributors: Kei Okada
+
+1.0.9 (2014-04-14)
+------------------
+* (hrpsys_ros_bridge) add git to build_depend
+* Contributors: Isaac IY Saito
+
+1.0.8 (2014-04-14)
+------------------
+* use git:// for download pr2_controllers (potential fix for `#410 <https://github.com/start-jsk/rtmros_common/issues/410>`_)
+* add rosdnode to depends(see https://github.com/jsk-ros-pkg/jsk_roseus/pull/65, `#411 <https://github.com/start-jsk/rtmros_common/issues/411>`_)
+* add euscollada_SOURCE_PREFIX and euscollada_PREFIX
+* use start_omninames.sh for rosdevel build environment, see `#400 <https://github.com/start-jsk/rtmros_common/issues/400>`_
+* remove deprecate function to generate conf parameter
+* Added procps, hostname, net-tools build_depends. These tools are used during building and testing
+* Contributors: Kei Okada, Scott K Logan, Shunichi Nozawa
+
 1.0.7 (2014-03-20)
 ------------------
 * call find_package(catkin) fist

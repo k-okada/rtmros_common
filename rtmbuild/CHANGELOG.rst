@@ -2,6 +2,34 @@
 Changelog for package rtmbuild
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.0 (2014-05-14)
+------------------
+
+* bump to 1.2.0 for hrpsys 315.2.0
+
+1.0.12 (2014-05-06)
+-------------------
+
+1.0.11 (2014-04-16)
+-------------------
+* compile idl files at once, omniidl -bpython support compile multiple idl
+* Contributors: Kei Okada
+
+1.0.10 (2014-04-15)
+-------------------
+
+1.0.9 (2014-04-14)
+------------------
+
+1.0.8 (2014-04-14)
+------------------
+* fix to work on rosbuild
+* fix for installed test, use rtmbuild_SOURCE_PREFIX to check if devel/src environment
+* rtmbuild: install test directory so that others can uses this
+* rtmbuild: rewrite rtmbulid.cmake
+* rtmbuild: cleanup catkin.cmake and put everything into CMakeLists.txt
+* Contributors: Kei Okada
+
 1.0.7 (2014-03-20)
 ------------------
 * add depends from RTMBUILD__rm_idl2srv to _generate_messages_cpp, so that we can generate message in the beginning
