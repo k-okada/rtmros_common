@@ -27,6 +27,8 @@
   <arg name="REALTIME" default="false" />
   <arg name="GUI" default="true" />
   <arg name="RTCD_LAUNCH_PREFIX" default=""/>
+  <!--arg name="RTCD_LAUNCH_PREFIX" default="xterm -e gdb \-\-args"--> <!-- for debugging with gdb -->
+  <arg name="PY_LAUNCH_PREFIX" default=""/>
   <!--   for hrpsys-simulator -->
   <arg unless="$(arg USE_RTCD)" name="hrpsys_periodic_rate" default="1000000"/>
   <!-- see http://code.google.com/p/hrpsys-base/issues/detail?id=14 for  exec_cxt.periodic.rate:100000 -->
@@ -53,12 +55,16 @@
 -o "example.StateHolder.config_file:$(arg CONF_FILE)"
 -o "example.TorqueFilter.config_file:$(arg CONF_FILE)"
 -o "example.TorqueController.config_file:$(arg CONF_FILE)"
+-o "example.ThermoEstimator.config_file:$(arg CONF_FILE)"
+-o "example.ThermoLimiter.config_file:$(arg CONF_FILE)"
 -o "example.VirtualForceSensor.config_file:$(arg CONF_FILE)"
 -o "example.AbsoluteForceSensor.config_file:$(arg CONF_FILE)"
+-o "example.RemoveForceSensorLinkOffset.config_file:$(arg CONF_FILE)"
 -o "example.KalmanFilter.config_file:$(arg CONF_FILE)"
 -o "example.Stabilizer.config_file:$(arg CONF_FILE)"
 -o "example.CollisionDetector.config_file:$(arg CONF_FILE)"
 -o "example.SoftErrorLimiter.config_file:$(arg CONF_FILE)"
+-o "example.HGcontroller.config_file:$(arg CONF_FILE)"
 -o "example.RobotHardware.config_file:$(arg RobotHardware_conf)"
     '/>
   <arg name="hrpsys_opt_rtc_config_args" default=''/>
@@ -77,6 +83,7 @@
   <!-- BEGIN:hrpsys.py setting -->
   <arg name="HRPSYS_PY_PKG" default="hrpsys_tools"/>
   <arg name="HRPSYS_PY_NAME" default="hrpsys_tools_config.py"/>
+  <arg name="HRPSYS_PY_ARGS" default='' />
   <arg name="LAUNCH_HRPSYSPY" default="true" />
   <!-- END:hrpsys.py setting -->
 
@@ -105,8 +112,8 @@
 
   <group if="$(arg LAUNCH_HRPSYSPY)">
     <node name="hrpsys_py" pkg="$(arg HRPSYS_PY_PKG)" type="$(arg HRPSYS_PY_NAME)" output="screen"
-          args='$(arg SIMULATOR_NAME) $(arg MODEL_FILE) $(arg omniorb_args)'
-          launch-prefix="$(arg RTCD_LAUNCH_PREFIX)" />
+          args='$(arg HRPSYS_PY_ARGS) $(arg SIMULATOR_NAME) $(arg MODEL_FILE) $(arg omniorb_args)'
+          launch-prefix="$(arg PY_LAUNCH_PREFIX)" />
   </group>
 
   <!-- <node name="abstransform2posrpy" pkg="hrpsys" type="AbsTransformToPosRpy" output="$(arg OUTPUT)" -->

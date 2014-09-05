@@ -2,6 +2,40 @@
 Changelog for package openrtm_ros_bridge
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.3 (2014-09-03)
+------------------
+
+1.2.2 (2014-08-31)
+------------------
+
+1.2.1 (2014-06-23)
+------------------
+* (index.rst) Add usage api doc
+* (package.xml files) Update repository URLs
+* Contributors: Isaac IY Saito, Isaac Isao Saito
+
+1.2.0 (2014-05-14)
+------------------
+
+* bump to 1.2.0for hrpsys 315.2.0
+
+1.0.12 (2014-05-06)
+-------------------
+
+1.0.11 (2014-04-16)
+-------------------
+
+1.0.10 (2014-04-15)
+-------------------
+
+1.0.9 (2014-04-14)
+------------------
+
+1.0.8 (2014-04-14)
+------------------
+* use start_omninames.sh for rosdevel build environment, see `#400 <https://github.com/start-jsk/rtmros_common/issues/400>`_
+* Contributors: Kei Okada
+
 1.0.7 (2014-03-20)
 ------------------
 * openrtm_ros_bridge: (test_myservice_rosbridge.test) add retry=4
