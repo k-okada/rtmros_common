@@ -2,6 +2,50 @@
 Changelog for package openrtm_tools
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.2.4 (2014-09-08)
+------------------
+
+1.2.3 (2014-09-03)
+------------------
+
+1.2.2 (2014-08-31)
+------------------
+
+1.2.1 (2014-06-23)
+------------------
+* (rtmlaunch.py) rtmlaunch should support unless attribute in group tag. the current implementation only takes into account if attribute of group tag. this commit adds supporting unless attribute.
+* (package.xml files) Update repository URLs
+* Contributors: Isaac Isao Saito, Ryohei Ueda
+
+1.2.0 (2014-05-14)
+------------------
+
+* bump to 1.2.0for hrpsys 315.2.0
+
+1.0.12 (2014-05-06)
+-------------------
+* Merge pull request #404 from k-okada/403_check_rtprint
+  add add check to rtprint
+* add python path to openrtm_aist_python, this will fix #403
+* add test program for rtshell/rtprint
+* remove redundant rosdep name from manifest.xml
+* does not call shopt on zsh
+* Contributors: Kei Okada, Ryohei Ueda
+
+1.0.11 (2014-04-16)
+-------------------
+
+1.0.10 (2014-04-15)
+-------------------
+
+1.0.9 (2014-04-14)
+------------------
+
+1.0.8 (2014-04-14)
+------------------
+* use start_omninames.sh for rosdevel build environment, see `#400 <https://github.com/start-jsk/rtmros_common/issues/400>`_
+* Contributors: Kei Okada
+
 1.0.7 (2014-03-20)
 ------------------
 * (rtmlaunch.py) trap SIGINT and exits with 0
