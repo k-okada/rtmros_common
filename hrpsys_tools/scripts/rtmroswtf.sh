@@ -49,15 +49,7 @@ res_dpkg=$(dpkg -l | grep '^ii' | grep ros- | awk '{print $2 " " $3}')
 IFS=$'\n'  # http://askubuntu.com/questions/344407/how-to-read-complete-line-in-for-loop-with-spaces
 for i in ${res_dpkg}
 do 
-  printf "%s $i " 2>&1 | tee -a ${FILENAME_LOG_COMMANDS}
-  p_underscore=$(echo ${i} | awk '{print $1}' | sed 's/ros-\([a-zA-Z]*\)-//' | tr '-' '_');
-  printf "%s ${p_underscore} " 2>&1 | tee -a ${FILENAME_LOG_COMMANDS}
-  rospackfind_result=$(rospack -q find ${p_underscore})
-  printf "%s ${rospackfind_result} " 2>&1 | tee -a ${FILENAME_LOG_COMMANDS}
-  echo "${rospackfind_result}" | grep -o '[^/]*$' | xargs rosversion 2>&1 | tee -a ${FILENAME_LOG_COMMANDS}
-  if [[ -z "$rospackfind_result" ]]; then
-    continue;
-  fi
+  echo "+  $i " 2>&1 | tee -a ${FILENAME_LOG_COMMANDS}
 done
 
 res_dpkg=$(rospack list)
