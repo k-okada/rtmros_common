@@ -60,12 +60,13 @@ do
   printf "* %s ${p_packagename} " 2>&1 | tee -a ${FILENAME_LOG_COMMANDS}
   rospackfind_result=$(rospack -q find ${p_packagename})
   printf "%s ${rospackfind_result} " 2>&1 | tee -a ${FILENAME_LOG_COMMANDS}
-  echo "${rospackfind_result}" | grep -o '[^/]*$' | xargs rosversion 2>&1 | tee -a ${FILENAME_LOG_COMMANDS}
+  echo "${rospackfind_result}" | grep -o '[^/]*$' | xargs rosversion 2>&1 | xargs echo -n  | tee -a ${FILENAME_LOG_COMMANDS} # http://stackoverflow.com/questions/12524308/bash-strip-trailing-linebreak-from-output
   if [[ -z "$rospackfind_result" ]]; then
     continue;
   fi
   # git status
   cd "${rospackfind_result}";
+  echo `git branch 2> /dev/null | grep ^* | sed 's@\* \(.*\)@ (\1)@' ` | tee -a ${FILENAME_LOG_COMMANDS}
   if [ `git diff 2> /dev/null | wc -l` != "0" ]; then
       git status | tee -a ${FILENAME_LOG_COMMANDS}
   fi
