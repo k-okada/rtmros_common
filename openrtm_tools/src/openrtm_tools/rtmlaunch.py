@@ -226,17 +226,17 @@ def main():
     try:
         tree = rtctree.tree.RTCTree()
     except Exception, e:
-        print >>sys.stderr, "\033[31m[rtmlaunch] Cloud not start rtmlaunch.py, Caught exception (", e, ")\033[0m"
+        print >>sys.stderr, "\033[31m[rtmlaunch] Could not start rtmlaunch.py, Caught exception (", e, ")\033[0m"
         # check if host is connected
         try:
             hostname = nameserver.split(':')[0]
             ip_address = socket.gethostbyname(hostname)
         except Exception, e:
-            print >>sys.stderr, "\033[31m[rtmlaunch] .. Colud not find IP address of ", hostname, ", Caught exception (", e, ")\033[0m"
+            print >>sys.stderr, "\033[31m[rtmlaunch] .. Could not find IP address of ", hostname, ", Caught exception (", e, ")\033[0m"
             print >>sys.stderr, "\033[31m[rtmlaunch] .. Please check /etc/hosts or DNS setup\033[0m"
             return 1
         # in this case, it is likely you forget to run name serveer
-        print >>sys.stderr, "\033[31m[rtmlaunch] .. Colud not connect to NameServer at ", nameserver, ", Caught exception (", e, ")\033[0m"
+        print >>sys.stderr, "\033[31m[rtmlaunch] .. Could not connect to NameServer at ", nameserver, ", Caught exception (", e, ")\033[0m"
         print >>sys.stderr, "\033[31m[rtmlaunch] .. Please make sure that you have NameServer running at %s/`\033[0m"%(nameserver)
         print >>sys.stderr, "\033[31m[rtmlaunch] .. You can check with `rtls %s/`\033[0m"%(nameserver)
         return 1
