@@ -179,7 +179,7 @@ RTC::ReturnCode_t HrpsysSeqStateROSBridgeImpl::onInitialize()
         }
       else
       {
-        // localR is parnet
+        // localR is parent. https://github.com/start-jsk/rtmros_common/pull/925
         rpy = hrp::rpyFromRot(sensor->link->Rs.inverse() * sensor->localR);
       }
       si.transform.setRotation( tf::createQuaternionFromRPY(rpy(0), rpy(1), rpy(2)) );
