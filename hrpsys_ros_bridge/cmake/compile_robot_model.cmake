@@ -148,8 +148,13 @@ macro(compile_openhrp_model wrlfile)
 
   if(_controller_config)
     # output controller config (yaml -> config) if yaml is not found write dummy files
+    find_package(PythonInterp QUIET)
+    if(NOT PYTHONINTERP_FOUND)
+      find_package(Python REQUIRED)
+      set(PYTHON_EXECUTABLE ${Python_EXECUTABLE})
+    endif()  # enable to execute with correct python version (cf. https://github.com/tork-a/openrtm_aist_python-release/pull/5)
     add_custom_command(OUTPUT ${_controller_config}
-      COMMAND ${_controller_config_converter} ${_yamlfile} ${_controller_config}
+      COMMAND ${PYTHON_EXECUTABLE} ${_controller_config_converter} ${_yamlfile} ${_controller_config}
       DEPENDS ${_yamlfile})
     add_custom_target(${_sname}_${PROJECT_NAME}_compile_conf DEPENDS ${_controller_config})
     list(APPEND ${_sname}_${PROJECT_NAME}_compile_all_target ${_sname}_${PROJECT_NAME}_compile_conf)
